@@ -49,5 +49,54 @@ function convertMs(ms) {
     return { days, hours, minutes, seconds };
   }
 
+function timerSets({days, hours, minutes, second}){
+const setsRefs = {
+    timerDays: document.querySelector('span[data-days]'),
+    timerHours:document.querySelector('span[data-hours]'),
+    timerMinutes:document.querySelector('span[data-minutes]'),
+    timerSeconds:document.querySelector('span[data-seconds]')
+};
+const {timerDays, timerHours, timerMinutes, timerSeconds} = setsRefs;
+timerDays.textContent = `${days}`;
+timerHours.textContent = `${hours}`;
+timerMinutes.textContent = `${minutes}`;
+timerSeconds.textContent = `${seconds}`;
+};
 
-  
+
+// --------------------------RECEIVE AN OBJECT OF PICKR PARAMETERS---------------------------------------------//
+const options = {
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    isActive: false,
+    onClose(selectedDates) {
+      if(new Date() - selectedDates[0] > 0){
+        alert('Please choose a date in the future');
+        startButton.disabled = !this.isActive;
+        return;
+      }
+      startButton.disabled = this.isActive;
+      startButton.addEventListener('click' , evt =>{
+        if(this.isActive){
+            return;
+        };
+        this.isActive = true;
+        startButton.disabled = !this.isActive;
+        const convert = convertMs.bind(options);
+        const timerId = setInterval(() => {
+            if(selectedDates[0] - new Date() <=0){
+                clearInterval(timerId);
+                return;
+            };
+            const face = timerSets.bind(options);
+            face(convert(selectedDates[0] - new Date()));
+        }, 1000);
+      });
+    },
+};
+// --------------------------OTHER---------------------------------------------//
+
+startButton.disabled = true;
+flatpickr('input#datetime-picker', options);
